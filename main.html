@@ -139,7 +139,7 @@
 
 
 
-    function toogle(obj)
+    function toggle(obj)
     {
       var id    = obj.id;
       var p     = parametros[id];
@@ -159,10 +159,10 @@
 <body>
 
   <input type="button" id="outro"   value="Outro"     onclick="location='/chaos'" />
-  <input type="button" id="estado"  value="Iniciar"   onclick="toogle(this)" />
-  <input type="button" id="delay"   value="Rápido"    onclick="toogle(this)" />
-  <input type="button" id="tamanho" value="Ponto"     onclick="toogle(this)" />
-  <input type="button" id="linha"   value="Sem Linha" onclick="toogle(this)" />
+  <input type="button" id="estado"  value="Iniciar"   onclick="toggle(this)" />
+  <input type="button" id="delay"   value="Rápido"    onclick="toggle(this)" />
+  <input type="button" id="tamanho" value="Ponto"     onclick="toggle(this)" />
+  <input type="button" id="linha"   value="Sem Linha" onclick="toggle(this)" />
 
   <canvas id="plano"></canvas>
 
