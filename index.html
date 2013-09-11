@@ -106,7 +106,7 @@
       function mainloop()
       {
         var cor = Math.floor((10*Math.random()))%3;
-        semente1 = [ (semente0[0]+vertices[cor][0])/4 , (semente0[1]+vertices[cor][1])/4 ];
+        semente1 = [ (semente0[0]+vertices[cor][0])/2 , (semente0[1]+vertices[cor][1])/2 ];
         if (valor['linha']) line( semente0[0], semente0[1], semente1[0], semente1[1], 0.2, '#aaa' );
         circ( semente1[0], semente1[1], valor['tamanho'], cores[cor] );
         semente0 = semente1;
