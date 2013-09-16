@@ -1,4 +1,4 @@
-## [Chaos, Ordem e Intuição](http://arkanon.github.io/chaos/)
+## [Chaos, Ordem e Intuição](http://goo.gl/Hke2eo)
 
 - Pegue os três vértices de um triângulo (qualquer triângulo!)
 - pinte um dos vértices de vermelho, outro de azul e o terceiro de verde.
@@ -23,4 +23,4 @@ Agora pense numa situação mais geral:
 
 Então? >:-)
 
-[Veja aqui](http://arkanon.github.io/chaos/) se o resultado é o que você imaginou :-)
+[Veja aqui](http://goo.gl/Hke2eo) se o resultado é o que você imaginou :-)
