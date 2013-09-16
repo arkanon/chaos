@@ -3,6 +3,7 @@
 <!--
 
      Arkanon <arkanon@lsd.org.br>
+     2013/09/15 (Sun) 21:35:32 (BRS)
      2013/09/11 (Wed) 04:37:28 (BRS)
      2013/09/07 (Sat) 06:40:39 (BRS)
      2013/09/02 (Seg) 06:24:05 (BRS)
@@ -18,104 +19,272 @@
   <title>Chaos Game</title>
   <meta charset="utf-8">
 
-  <script>
-  
-    var cores        = [ 'red' , 'green' , 'blue' ];
+  <style>
 
-    var parametros   =
+    *
+    {
+      font-family: sans-serif;
+      font-size: 10pt;
+    }
+
+    body
+    {
+      margin: 5px;
+      background: #444;
+    }
+
+    #control
+    {
+      margin: 0 0 4px 0;
+    }
+
+    #canvases
+    {
+      display: inline-block;
+      position: relative;
+      background-color: black;
+      vertical-align: top;
+    }
+
+    canvas
+    {
+      position: absolute;
+    }
+
+    #sorteios
+    {
+      margin-top: -2px;
+      display: inline-block;
+    }
+
+    #sorteios div
+    {
+      display: block;
+    }
+
+    #sorteios div .porcentagem
+    {
+      width: 55px;
+      margin-left: 3px;
+    }
+
+    span
+    {
+      margin-top: 2px;
+      vertical-align: top;
+      display: inline-block;
+      border: 1px solid #7a7a7a;
+      background-color: white;
+      padding: 0 3px 2px 3px;
+    }
+
+    input[type=checkbox]
+    {
+      vertical-align: middle;
+      margin: 0 3px 0 0;
+    }
+
+    input[type=button]
+    {
+      padding: 0 3px;
+    }
+
+    input[type=text]
+    {
+      border: 1px solid #7a7a7a;
+      text-align: right;
+      padding: 1px 3px;
+      width: 70px;
+    }
+
+    select
+    {
+      margin: 0;
+    }
+
+  </style>
+
+  <script src="colornames.js"></script>
+
+  <script>
+
+    var cores      = [ 'red' , 'lime' , 'dodgerblue' , 'chocolate' , 'yellow' , 'magenta' , 'cyan' , 'gray' , 'orangered' , 'salmon' ];
+
+    var parametros =
     {
 
       'estado'  : {
-                    'Iniciar' : function() { draw() },
-                    'Parar'   : function() { clearTimeout(tout) }
+                    'Iniciar' : function() { rodar () },
+                    'Parar'   : function() { parar () }
                   },
 
       'delay'   : {
-                    'Rápido'  : 1,
-                    'Lento'   : 1000
+                    'lento'  : 1000,
+                    'rapido' : 1
                   },
-
-      'tamanho' : {
-                    'Ponto'   : 0.5,
-                    'Círculo' : 3.0
-                  },
-
-      'linha'   : {
-                    'Com Linha' : true,
-                    'Sem Linha' : false
-                  }
 
     };
 
-    var valor =
+    var visibilidade =
     {
-      'delay'   : 1000,
-      'tamanho' : 2.0,
-      'linha'   : '0.2'
+      'vertices'    : 1,
+      'semente'     : 1,
+      'pontos'      : 0,
+      'discos'      : 1,
+      'linhas'      : 1,
+   // 'pontos-mono' : 0,
+   // 'discos-mono' : 0,
+   // 'linhas-mono' : 0
     };
 
-    var body, marginTop, marginRight, marginBottom, marginLeft;
-    var canvas, context, tout, vertices, semente;
-    var W, H;
+
+
+    var LT, RB, W, H, pr, natW, natH, enatW, enatH, sc, tout, tout2;
+    var semente, semente0, semente1, cor;
+    var valor      = [];
+    var canvas     = [];
+    var context    = [];
+    var vertices   = [];
+    var natO       = [];
+    var pi         = Math.PI;
+    var colornames = colornames();
+
+          LT = [ -250 ,  250 ];
+          RB = [  250 , -250 ];
+        natW = 500;
+    raiovert = 5;
+    raiodisc = 2;
+
+
 
     window.onload = function()
     {
-      init1();
-      init2();
-    }
-
-    function init1()
-    {
-
-      W = window.innerWidth  - 70;
-      H = window.innerHeight - 70;
-
-      semente  = [ 350+(W-700)*Math.random(), 350+(H-700)*Math.random() ];
-
-      vertices =
-      [
-        [  50+(W-100)*Math.random(),  50+(H-100)*Math.random() ] ,
-        [ 150+(W-300)*Math.random(), 150+(H-300)*Math.random() ] ,
-        [ 250+(W-500)*Math.random(), 250+(H-500)*Math.random() ]
-      ];
-
-    }
-
-    function init2()
-    {
-
-      canvas        = document.getElementById('plano');
-      canvas.width  = W;
-      canvas.height = H;
-      context       =  canvas.getContext('2d');
-
-      circ( vertices[0][0], vertices[0][1], 5, cores[0] );
-      circ( vertices[1][0], vertices[1][1], 5, cores[1] );
-      circ( vertices[2][0], vertices[2][1], 5, cores[2] );
-      circ(     semente[0],     semente[1], 5, 'black'  );
-
+      inicializar();
+      setcanvas();
     }
 
 
 
-    function draw()
+    function inicializar()
     {
 
-      var f = .6;
+      W       = RB[0] - LT[0];        // width
+      H       = LT[1] - RB[1];        // height
 
-      init2();
-      var semente0  = semente;
-      var i = 0;
-      function mainloop()
+      pr      = H/W;                  // proportion
+      sc      = W/natW;               // scale
+      natH    = natW*pr;              // native height
+
+      enatW   = 1 + Math.round(natW); // effective native width
+      enatH   = 1 + Math.round(natH); // effective native height
+
+      natO[0] = Math.abs(LT[0]/sc);   // native origin x
+      natO[1] = Math.abs(LT[1]/sc);   // native origin y
+
+      valor   =
       {
-        var cor = Math.floor((10*Math.random()))%3;
-        semente1 = [ semente0[0]+(vertices[cor][0]-semente0[0])*f , semente0[1]+(vertices[cor][1]-semente0[1])*f ];
-        if (valor['linha']) line( semente0[0], semente0[1], semente1[0], semente1[1], 0.2, '#aaa' );
-        circ( semente1[0], semente1[1], valor['tamanho'], cores[cor] );
-        semente0 = semente1;
-     // console.log( i + ' - delay=' + valor['delay'] + ' - tamanho=' + valor['tamanho'] + ' - linha=' + valor['linha'] + ' - semente=(' + semente0[0] + ',' + semente0[1] + ') - ' + cores[cor] + '=(' + vertices[cor][0] + ',' + vertices[cor][1] + ')' );
-        i++;
-        tout = setTimeout(mainloop, valor['delay']);
+        'fator' : document.getElementById('fator').value,
+        'delay' : 1000,
+      };
+
+    }
+
+
+
+    function setcanvas()
+    {
+
+      document.getElementById('canvases').style.width  = enatW;
+      document.getElementById('canvases').style.height = enatH;
+
+      var canvases = document.getElementsByTagName('canvas');
+      for ( var i=0; i<canvases.length; i++ )
+      {
+        var id = canvases[i].id;
+        canvas [id] = canvases[i];
+        canvas [id].id = id;
+        context[id] = canvas[id].getContext('2d');
+        canvas [id].width  = enatW;
+        canvas [id].height = enatH;
+        canvas [id].style.visibility = visibilidade[iid(id)] ? 'visible' : 'hidden';
+        document.getElementById(iid(id)).checked = visibilidade[iid(id)];
+      }
+
+    }
+
+
+
+    function plotvert()
+    {
+
+      context['c-vertices'].clearRect(0,0,enatW,enatH);
+      context['c-semente' ].clearRect(0,0,enatW,enatH);
+
+      var sorteios = document.getElementById('sorteios');
+      while (sorteios.lastChild.id!='iter') sorteios.removeChild(sorteios.lastChild);
+
+      for ( var i=0; i<valor['N']; i++ )
+      {
+        angulo      = pi/2 - 2*pi*i/valor['N'];
+        apotema     =  H/2 - raiovert - 3;
+        vertices[i] = [ apotema*cos(angulo), apotema*sen(angulo) ];
+        disco( 'vertices', vertices[i][0], vertices[i][1], raiovert, cores[i] );
+
+        var div                        = document.createElement('div');
+            div.id                     = cores[i];
+
+        var iter                       = document.createElement('input');
+            iter.id                    = 'iter-'+cores[i];
+            iter.className             = 'sorteios';
+            iter.value                 = 0;
+            iter.style.backgroundColor = cores[i];
+            iter.setAttribute('type'    , 'text'    );
+            iter.setAttribute('disabled', 'disabled');
+
+        var porc                       = document.createElement('input');
+            porc.id                    = 'porc-'+cores[i];
+            porc.className             = 'porcentagem';
+            porc.value                 = '0%';
+            porc.style.backgroundColor = cores[i];
+            porc.setAttribute('type'    , 'text'    );
+            porc.setAttribute('disabled', 'disabled');
+
+                 div.appendChild(iter);
+                 div.appendChild(porc);
+            sorteios.appendChild(div);
+
+      }
+
+      document.getElementById('iter').value = 0;
+
+      semente  = [ W*Math.random() + LT[0] , H*Math.random() + RB[1] ];
+
+      disco( 'semente', semente[0], semente[1], raiovert, 'white' );
+
+      semente0 = semente;
+
+    }
+
+
+
+    function mainloop()
+    {
+
+      cor      = Math.floor((10*Math.random()))%valor['N'];
+      semente1 = [ semente0[0]+(vertices[cor][0]-semente0[0])*valor['fator'] , semente0[1]+(vertices[cor][1]-semente0[1])*valor['fator'] ];
+
+      ponto( 'pontos', semente1[0], semente1[1],                                cores[cor] );
+      disco( 'discos', semente1[0], semente1[1], raiodisc,                      cores[cor] );
+      linha( 'linhas', semente0[0], semente0[1], semente1[0], semente1[1], 0.2, cores[cor] );
+
+      semente0 = semente1;
+
+      document.getElementById('iter'            ).value ++;
+      document.getElementById('iter-'+cores[cor]).value ++;
+
+      for ( var i=0; i<valor['N']; i++ )
+      {
+        document.getElementById('porc-'+cores[i]).value = ( 100 * document.getElementById('iter-'+cores[i]).value / document.getElementById('iter').value ).toFixed(2) + '%';
       }
 
       tout = setTimeout(mainloop, valor['delay']);
@@ -124,35 +293,123 @@
 
 
 
-    function circ(cx, cy, raio, cor)
+    function rodar()
     {
-      context.beginPath();
-      context.fillStyle = cor;
-      context.arc(cx, cy, raio, 0, 2*Math.PI, false);
-      context.fill();
-    }
-
-    function line(x0, y0, x1, y1, espessura, cor)
-    {
-      context.beginPath();
-      context.strokeStyle = cor;
-      context.lineWidth = espessura;
-      context.moveTo(x0,y0);
-      context.lineTo(x1,y1);
-      context.stroke();
+      tout = setTimeout(mainloop, valor['delay']);
     }
 
 
 
-    function toggle(obj)
+    function parar()
     {
-      var id    = obj.id;
-      var p     = parametros[id];
-      var ids   = Object.keys(p);
-      var i     = ids.indexOf(obj.value);
-      obj.value =  ids[(i+1)%2];
-      if (typeof p[ids[(i+1)%2]] === 'function') p[ids[i]]();
-      else                           valor[id] = p[ids[i]];
+      clearTimeout(tout);
+    }
+
+
+
+    function iid(id)
+    {
+      return id.split('-')[1];
+    }
+
+
+
+    function x2col(x)
+    {
+      return Math.round( natO[0] + x/sc );
+    }
+
+
+
+    function y2lin(y)
+    {
+      return Math.round( natO[1] - y/sc );
+    }
+
+
+
+    function ponto(canvasid, x, y, cor)
+    {
+      canvasid = 'c-' + canvasid;
+      cor = colornames[cor];
+      var idx = ( x2col(x) + y2lin(y)*enatW )*4;
+      dataset = context[canvasid].getImageData(0, 0, enatW, enatH);
+      dataset.data[idx+0] = cor[0];
+      dataset.data[idx+1] = cor[1];
+      dataset.data[idx+2] = cor[2];
+      dataset.data[idx+3] = 255;
+      context[canvasid].putImageData(dataset, 0, 0);
+    }
+
+
+
+    function disco(canvasid, cx, cy, raio, cor)
+    {
+      canvasid = 'c-' + canvasid;
+      context[canvasid].beginPath();
+      context[canvasid].fillStyle = cor;
+      context[canvasid].arc(x2col(cx), y2lin(cy), raio, 0, 2*pi, false);
+      context[canvasid].fill();
+    }
+
+
+
+    function linha(canvasid, x0, y0, x1, y1, espessura, cor)
+    {
+      canvasid = 'c-' + canvasid;
+      context[canvasid].beginPath();
+      context[canvasid].strokeStyle = cor;
+      context[canvasid].lineWidth = espessura;
+      context[canvasid].moveTo(x2col(x0), y2lin(y0));
+      context[canvasid].lineTo(x2col(x1), y2lin(y1));
+      context[canvasid].stroke();
+    }
+
+
+
+    function sen(n)
+    {
+      return Math.sin(n);
+    }
+
+
+
+    function cos(n)
+    {
+      return Math.cos(n);
+    }
+
+
+
+    function L(varname)
+    {
+      console.log( varname === undefined ? '' : varname + ' = ' + eval(varname) );
+    }
+
+
+
+    function set(type, obj)
+    {
+
+      switch (type)
+      {
+
+        case 'vis' :
+          canvas['c-'+obj.id].style.visibility = obj.checked ? 'visible' : 'hidden';
+          break;
+
+        case 'bin' :
+          var id    = obj.id;
+          var p     = parametros[id];
+          var ids   = Object.keys(p);
+          var i     = ids.indexOf(obj.value);
+          obj.value =  ids[(i+1)%2];
+          if (typeof p[ids[(i+1)%2]] === 'function') p[ids[i]]();
+          else                           valor[id] = p[ids[i]];
+          break;
+
+      }
+
     }
 
 
@@ -163,13 +420,51 @@
 
 <body>
 
-  <input type="button" id="outro"   value="Outro"     onclick="location='/chaos'" />
-  <input type="button" id="estado"  value="Iniciar"   onclick="toggle(this)" />
-  <input type="button" id="delay"   value="Rápido"    onclick="toggle(this)" />
-  <input type="button" id="tamanho" value="Ponto"     onclick="toggle(this)" />
-  <input type="button" id="linha"   value="Sem Linha" onclick="toggle(this)" />
+  <div id="control">
 
-  <canvas id="plano"></canvas>
+    <input type="button" id="outro" value="Outro" onclick="location=''"  />
+
+    <select id="N" onchange="valor[this.id]=this.value;plotvert()">
+      <option>#vértices</option>
+      <option> 3</option>
+      <option> 4</option>
+      <option> 5</option>
+      <option> 6</option>
+      <option> 7</option>
+      <option> 8</option>
+      <option> 9</option>
+      <option>10</option>
+    </select>
+
+    <input type="text" id="fator" value=".5" onchange="valor[this.id]=this.value" title="Fator" />
+
+    <span><input type="checkbox" id="delay"    onclick="set('bin',this)" /><label for="delay"   >Rápido  </label></span>
+    <span><input type="checkbox" id="vertices" onclick="set('vis',this)" /><label for="vertices">Vértices</label></span>
+    <span><input type="checkbox" id="semente"  onclick="set('vis',this)" /><label for="semente" >Semente </label></span>
+    <span><input type="checkbox" id="pontos"   onclick="set('vis',this)" /><label for="pontos"  >Pontos  </label></span>
+    <span><input type="checkbox" id="discos"   onclick="set('vis',this)" /><label for="discos"  >Discos  </label></span>
+    <span><input type="checkbox" id="linhas"   onclick="set('vis',this)" /><label for="linhas"  >Linhas  </label></span>
+
+    <input type="button" id="estado" value="Iniciar" onclick="set('bin',this)" />
+
+  </div>
+
+  <div id="canvases">
+    <canvas id="c-vertices"   ></canvas>
+    <canvas id="c-semente"    ></canvas>
+    <canvas id="c-pontos"     ></canvas>
+    <canvas id="c-discos"     ></canvas>
+    <canvas id="c-linhas"     ></canvas>
+<!--
+    <canvas id="c-pontos-mono"></canvas>
+    <canvas id="c-discos-mono"></canvas>
+    <canvas id="c-linhas-mono"></canvas>
+-->
+  </div>
+
+  <div id="sorteios">
+    <input type="text" id="iter" disabled="disabled" value="#iterações" />
+  </div>
 
 </body>
 
