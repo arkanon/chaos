@@ -16,10 +16,10 @@ As três cores ficarão misturadas, ou os pontos de mesma cor se aglutinarão? C
 
 O que sua intuição sugere? ;-)
 
-Agora imagine uma situação mais geral:
+Agora pense numa situação mais geral:
 
 - qualquer quantidade de vértices
-- a semente sendo deslocada em direção do vértice sorteado não a metade da distância (d*0.5), mas qualquer porcentagem dela (d*f)
+- a semente sendo deslocada em direção da vértice sorteado não a metade da distância (d*0.5), mas qualquer porcentagem dela (d*f)
 
 Então? >:-)
 
