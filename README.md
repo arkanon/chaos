@@ -19,7 +19,7 @@ O que sua intuição sugere? ;-)
 Agora pense numa situação mais geral:
 
 - qualquer quantidade de vértices
-- a semente sendo deslocada em direção da vértice sorteado não a metade da distância (d*0.5), mas qualquer porcentagem dela (d*f)
+- a semente sendo deslocada em direção ao vértice sorteado não a metade da distância até ele (d*0.5), mas qualquer porcentagem dela (d*f)
 
 Então? >:-)
 
