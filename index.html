@@ -3,6 +3,7 @@
 <!--
 
      Arkanon <arkanon@lsd.org.br>
+     2013/09/17 (Tue) 05:38:31 (BRS)
      2013/09/15 (Sun) 21:35:32 (BRS)
      2013/09/11 (Wed) 04:37:28 (BRS)
      2013/09/07 (Sat) 06:40:39 (BRS)
@@ -181,11 +182,7 @@
       natO[0] = Math.abs(LT[0]/sc);   // native origin x
       natO[1] = Math.abs(LT[1]/sc);   // native origin y
 
-      valor   =
-      {
-        'fator' : document.getElementById('fator').value,
-        'delay' : 1000,
-      };
+      valor['delay'] = 1000;
 
     }
 
@@ -214,8 +211,12 @@
 
 
 
-    function plotvert()
+    function plotvert(campo)
     {
+
+      valor['N'     ] = campo.value;
+      valor['fator' ] = valor['N'] == 3 ? .5 : 1/(1+1/(1+2*cos(2*pi/valor['N'])));
+      document.getElementById('fator').value = valor['fator'].toFixed(7);
 
       context['c-vertices'].clearRect(0,0,enatW,enatH);
       context['c-semente' ].clearRect(0,0,enatW,enatH);
@@ -424,7 +425,7 @@
 
     <input type="button" id="outro" value="Outro" onclick="location=''"  />
 
-    <select id="N" onchange="valor[this.id]=this.value;plotvert()">
+    <select id="N" onchange="plotvert(this)">
       <option>#vértices</option>
       <option> 3</option>
       <option> 4</option>
@@ -436,7 +437,7 @@
       <option>10</option>
     </select>
 
-    <input type="text" id="fator" value=".5" onchange="valor[this.id]=this.value" title="Fator" />
+    <input type="text" id="fator" value="" onchange="valor[this.id]=this.value" title="Fator" />
 
     <span><input type="checkbox" id="delay"    onclick="set('bin',this)" /><label for="delay"   >Rápido  </label></span>
     <span><input type="checkbox" id="vertices" onclick="set('vis',this)" /><label for="vertices">Vértices</label></span>
