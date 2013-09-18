@@ -2,7 +2,7 @@
 
 Vamos jogar o **Jogo do Caos**:
 
-- Pegue os três vértices de um triângulo (qualquer triângulo!)
+- Considere os três vértices de um triângulo (qualquer triângulo!)
 - pinte um dos vértices de vermelho, outro de azul e o terceiro de verde.
 - em um dado, pinte duas faces quaisquer de vermelho, duas de azul e as outras duas de verde.
 - escolha um ponto qualquer, dentro ou fora do triângulo, e marque-o. Esse ponto será chamado *semente*.
