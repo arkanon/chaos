@@ -1,6 +1,6 @@
 ## [Caos, Ordem e Intuição](http://goo.gl/Hke2eo)
 
-Vamos jogar o Jogo do Caos:
+Vamos jogar o **[Jogo do Caos](http://en.wikipedia.org/wiki/Chaos_game)**:
 
 - Pegue os três vértices de um triângulo (qualquer triângulo!)
 - pinte um dos vértices de vermelho, outro de azul e o terceiro de verde.
