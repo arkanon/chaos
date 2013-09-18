@@ -1,4 +1,4 @@
-## [Chaos, Ordem e Intuição](http://goo.gl/Hke2eo)
+## [Caos, Ordem e Intuição](http://goo.gl/Hke2eo)
 
 - Pegue os três vértices de um triângulo (qualquer triângulo!)
 - pinte um dos vértices de vermelho, outro de azul e o terceiro de verde.
