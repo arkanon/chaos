@@ -3,6 +3,7 @@
 <!--
 
      Arkanon <arkanon@lsd.org.br>
+     2013/09/20 (Sex) 08:33:53 (BRS)
      2013/09/17 (Tue) 21:59:40 (BRS)
      2013/09/17 (Tue) 05:38:31 (BRS)
      2013/09/15 (Sun) 21:35:32 (BRS)
@@ -19,24 +20,45 @@
 <head>
 
   <title>Chaos Game</title>
+
   <meta charset="utf-8">
+
+  <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css' />
 
   <style>
 
     *
     {
-      font-family: sans-serif;
+      font-family: Ubuntu;
       font-size: 10pt;
+      -webkit-touch-callout: none;
+        -webkit-user-select: none;
+         -khtml-user-select: none;
+           -moz-user-select: none;
+            -ms-user-select: none;
+                user-select: none;
+    }
+
+    #fator
+    {
+      -webkit-touch-callout: auto;
+        -webkit-user-select: auto;
+         -khtml-user-select: auto;
+           -moz-user-select: auto;
+            -ms-user-select: auto;
+                user-select: auto;
     }
 
     body
     {
+      height: 100%;
       margin: 5px;
       background: #444;
     }
 
-    #control
+    #controle
     {
+      display: inline-block;
       margin: 0 0 4px 0;
     }
 
@@ -53,26 +75,148 @@
       position: absolute;
     }
 
-    #sorteios
+    #realtime
     {
-      margin-top: -2px;
       display: inline-block;
     }
 
-    #sorteios div
+
+
+    #N,
+    #fator,
+    #estado,
+    #salvar,
+    #outro
+    {
+      display: block;
+      width: 80px;
+    }
+
+
+
+    #estado
+    {
+      -webkit-box-shadow: inset 0px 1px 0px 0px #f09393;
+         -moz-box-shadow: inset 0px 1px 0px 0px #f09393;
+              box-shadow: inset 0px 1px 0px 0px #f09393;
+             text-shadow:           1px 1px 0px #b23e35;
+      background-color: #fe1a00;
+      background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #fe1a00), color-stop(1, #ce0100) );
+      background: -moz-linear-gradient( center top, #fe1a00 5%, #ce0100 100% );
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe1a00', endColorstr='#ce0100');
+      padding: 1px 0 1px 0;
+      border: 1px solid #7a7a7a;
+      color: #ffffff;
+    }
+
+    #estado:hover
+    {
+      background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ce0100), color-stop(1, #fe1a00) );
+      background: -moz-linear-gradient( center top, #ce0100 5%, #fe1a00 100% );
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ce0100', endColorstr='#fe1a00');
+      background-color: #ce0100;
+    }
+
+    #estado:active
+    {
+      position: relative;
+      top: 1px;
+    }
+
+    #estado[disabled=disabled],
+    #estado[disabled=disabled]:active
+    {
+      top: 0;
+           color: black;
+      background: #dddddd;
+      -webkit-box-shadow: none;
+         -mox-box-shadow: none;
+              box-shadow: none;
+             text-shadow: none;
+    }
+
+
+
+    #inicio,
+    #agora,
+    #tempo
+    {
+      width: 155px;
+    }
+
+    #realtime>span
+    {
+      position: relative;
+      display: block;
+      width: 80px;
+    }
+
+    #realtime>span>input[type=checkbox]
+    {
+      margin-top: 4px;
+      margin-bottom: 1px;
+    }
+
+    #realtime>span>label
+    {
+      position: absolute;
+      top: 2px;
+      right: 0;
+      left: 18px;
+    }
+
+    #realtime>span,
+    #controle select,
+    #controle input,
+    #cabecalho
+    {
+      margin: 0 4px 4px 0;
+    }
+
+    #controle #realtime input[type=checkbox].individual
+    {
+      margin: 0 7px 0 5px;
+    }
+
+    #realtime div
     {
       display: block;
     }
 
-    #sorteios div .porcentagem
+    #realtime div .porcentagem
     {
       width: 55px;
-      margin-left: 3px;
+    }
+
+    #cabecalho input[type=checkbox]
+    {
+      vertical-align: middle;
+      margin: 3px 0 1px 1px;
+    }
+
+    #cabecalho input[type=text]
+    {
+      margin-bottom: 0;
+    }
+
+    #inicio,
+    #agora,
+    #tempo,
+    #cabecalho label
+    {
+      display: block;
+      text-align: center;
+    }
+
+    #velo,
+    #iter
+    {
+      vertical-align: bottom;
+      margin-bottom: 0;
     }
 
     span
     {
-      margin-top: 2px;
       vertical-align: top;
       display: inline-block;
       border: 1px solid #7a7a7a;
@@ -88,6 +232,7 @@
 
     input[type=button]
     {
+      margin: 0;
       padding: 0 3px;
     }
 
@@ -95,8 +240,19 @@
     {
       border: 1px solid #7a7a7a;
       text-align: right;
+      margin: 0;
       padding: 1px 3px;
       width: 70px;
+    }
+
+    input[type=text].velocidade
+    {
+      width: 50px;
+    }
+
+    input[disabled=disabled]
+    {
+      color: black;
     }
 
     select
@@ -110,14 +266,34 @@
 
   <script>
 
-    var cores      = [ 'red' , 'lime' , 'dodgerblue' , 'chocolate' , 'yellow' , 'magenta' , 'cyan' , 'gray' , 'orangered' , 'salmon' ];
+    var sem    = 'white';
+    var mon    = 'gray';
+    var week   = [ 'Dom', 'Sed' , 'Ter' , 'Qua' , 'Qui' , 'Sex' , 'Sáb' ];
+    var cores  = [
+                   'red'        ,
+                   'lime'       ,
+                   'dodgerblue' ,
+                   'chocolate'  ,
+                   'yellow'     ,
+                   'magenta'    ,
+                   'cyan'       ,
+                   'gray'       ,
+                   'orangered'  ,
+                   'salmon'     ,
+                   'aquamarine' ,
+                   'goldenrod'  ,
+                   'lightpink'
+                 ];
+    var views  = [ 'vertex' , 'pontos' , 'discos' , 'linhas' ];
+    var tags   = [ 'canvas' , 'input' ];
+    var modes  = [ 'color' , 'monoc' ];
 
     var parametros =
     {
 
       'estado'  : {
-                    'Iniciar' : function() { rodar () },
-                    'Parar'   : function() { parar () }
+                    'Iniciar' : function() { rodar() },
+                    'Parar'   : function() { parar() }
                   },
 
       'delay'   : {
@@ -129,20 +305,22 @@
 
     var visibilidade =
     {
-      'vertices'    : 1,
-      'semente'     : 1,
-      'pontos'      : 0,
-      'discos'      : 1,
-      'linhas'      : 1,
-   // 'pontos-mono' : 0,
-   // 'discos-mono' : 0,
-   // 'linhas-mono' : 0
+      'semente0'     : 1,
+      'sementei'     : 1,
+      'vertex-color' : 1,
+      'vertex-monoc' : 0,
+      'pontos-color' : 0,
+      'pontos-monoc' : 0,
+      'discos-color' : 1,
+      'discos-monoc' : 0,
+      'linhas-color' : 1,
+      'linhas-monoc' : 0,
     };
 
 
 
     var LT, RB, W, H, pr, natW, natH, enatW, enatH, sc, tout, tout2;
-    var semente, semente0, semente1, cor;
+    var inicio, semente, semente0, realtime, canvases;
     var valor      = [];
     var canvas     = [];
     var context    = [];
@@ -153,7 +331,6 @@
 
           LT = [ -250 ,  250 ];
           RB = [  250 , -250 ];
-        natW = 500;
     raiovert = 5;
     raiodisc = 2;
 
@@ -161,14 +338,13 @@
 
     window.onload = function()
     {
-      inicializar();
-      setcanvas();
-    }
 
+      var metrics, id, i, option;
 
+      metrics = document.body.getBoundingClientRect();
+      natW    = metrics.height - 2*metrics.top;
 
-    function inicializar()
-    {
+      document.body.style.height = natW;
 
       W       = RB[0] - LT[0];        // width
       H       = LT[1] - RB[1];        // height
@@ -185,85 +361,158 @@
 
       valor['delay'] = 1000;
 
-    }
+      realtime = $('realtime');
+      canvases = $('canvases');
 
+      canvases.style.width  = enatW;
+      canvases.style.height = enatH;
 
+      id = 'semente0';
+      context[id] = $('canvas-'+id).getContext('2d');
+      $('canvas-'+id).width  = enatW;
+      $('canvas-'+id).height = enatH;
 
-    function setcanvas()
-    {
-
-      document.getElementById('canvases').style.width  = enatW;
-      document.getElementById('canvases').style.height = enatH;
-
-      var canvases = document.getElementsByTagName('canvas');
-      for ( var i=0; i<canvases.length; i++ )
+      for (i=3; i<=cores.length; i++)
       {
-        var id = canvases[i].id;
-        canvas [id] = canvases[i];
-        canvas [id].id = id;
-        context[id] = canvas[id].getContext('2d');
-        canvas [id].width  = enatW;
-        canvas [id].height = enatH;
-        canvas [id].style.visibility = visibilidade[iid(id)] ? 'visible' : 'hidden';
-        document.getElementById(iid(id)).checked = visibilidade[iid(id)];
+        option = document.createElement('option');
+        option.innerHTML = i;
+        $('N').appendChild(option);
       }
 
     }
 
 
 
-    function plotvert(campo)
+    function ambiente()
     {
 
-      valor['N'     ] = campo.value;
-      valor['fator' ] = valor['N'] == 3 ? .5 : 1/(1+1/(1+2*cos(2*pi/valor['N'])));
-      document.getElementById('fator').value = valor['fator'].toFixed(7);
+      var cor, view, tag, mode;
+      var c, v, t, m;
+      var el, container, div, id, semi, iter, velo, porc;
 
-      context['c-vertices'].clearRect(0,0,enatW,enatH);
-      context['c-semente' ].clearRect(0,0,enatW,enatH);
+      valor['N'    ]   = $('N').value;
+      valor['fator']   = valor['N'] == 3 ? .5 : 1/(1+1/(1+2*cos(2*pi/valor['N'])));
+      $('fator').value = valor['fator'].toFixed(7);
 
-      var sorteios = document.getElementById('sorteios');
-      while (sorteios.lastChild.id!='iter') sorteios.removeChild(sorteios.lastChild);
+      $('estado').disabled = '';
 
-      for ( var i=0; i<valor['N']; i++ )
+      while ( realtime.lastChild.id != 'cabecalho'       ) realtime.removeChild(realtime.lastChild);
+      while ( canvases.lastChild.id != 'canvas-semente0' ) canvases.removeChild(canvases.lastChild);
+
+      for ( c=0; c<valor['N']; c++ )
       {
-        angulo      = pi/2 - 2*pi*i/valor['N'];
+
+        cor    = cores[c];
+
+        div    = document.createElement('div');
+        div.id = cor;
+
+        for (v in views)
+        {
+
+          view = views[v];
+
+          for (t in tags)
+          {
+
+            tag = tags[t];
+
+            for (m in modes)
+            {
+
+              mode = modes[m];
+              id   = cor + '-' + view + '-' + mode;
+              el   = document.createElement(tag);
+
+              switch (tag)
+              {
+
+                case ('canvas'):
+                  el.id               = 'canvas-' + id;
+                  el.width            = enatW;
+                  el.height           = enatH;
+                  el.style.visibility = visibilidade[ view + '-' + mode ] ? 'visible' : 'hidden';
+                  context[id]         = el.getContext('2d');
+                  container           = canvases;
+                  break;
+
+                case ('input'):
+                  el.setAttribute( 'type' , 'checkbox' );
+                  el.id        = id;
+                  el.className = 'individual';
+                  el.checked   = visibilidade[ view + '-' + mode ];
+                  el.onclick   = function(){ set('vis',this) };
+                  container    = div;
+                  break;
+
+              }
+
+              container.appendChild(el);
+
+            }
+
+          }
+
+        }
+
+        iter                       = document.createElement('input');
+        iter.id                    = cor + '-iter';
+        iter.value                 = 0;
+        iter.style.backgroundColor = cor;
+        iter.setAttribute('type'    , 'text'    );
+        iter.setAttribute('disabled', 'disabled');
+        div.appendChild(iter);
+
+        velo                       = document.createElement('input');
+        velo.id                    = cor + '-velo';
+        velo.className             = 'velocidade';
+        velo.value                 = 0;
+        velo.style.backgroundColor = cor;
+        velo.setAttribute('type'    , 'text'    );
+        velo.setAttribute('disabled', 'disabled');
+        div.appendChild(velo);
+
+        porc                       = document.createElement('input');
+        porc.id                    = cor + '-porc';
+        porc.className             = 'porcentagem';
+        porc.value                 = '0%';
+        porc.style.backgroundColor = cor;
+        porc.setAttribute('type'    , 'text'    );
+        porc.setAttribute('disabled', 'disabled');
+        div.appendChild(porc);
+
+        realtime.appendChild(div );
+
+        angulo      = pi/2 - 2*pi*c/valor['N'];
         apotema     =  H/2 - raiovert - 3;
-        vertices[i] = [ apotema*cos(angulo), apotema*sen(angulo) ];
-        disco( 'vertices', vertices[i][0], vertices[i][1], raiovert, cores[i] );
-
-        var div                        = document.createElement('div');
-            div.id                     = cores[i];
-
-        var iter                       = document.createElement('input');
-            iter.id                    = 'iter-'+cores[i];
-            iter.className             = 'sorteios';
-            iter.value                 = 0;
-            iter.style.backgroundColor = cores[i];
-            iter.setAttribute('type'    , 'text'    );
-            iter.setAttribute('disabled', 'disabled');
-
-        var porc                       = document.createElement('input');
-            porc.id                    = 'porc-'+cores[i];
-            porc.className             = 'porcentagem';
-            porc.value                 = '0%';
-            porc.style.backgroundColor = cores[i];
-            porc.setAttribute('type'    , 'text'    );
-            porc.setAttribute('disabled', 'disabled');
-
-                 div.appendChild(iter);
-                 div.appendChild(porc);
-            sorteios.appendChild(div);
+        vertices[c] = [ apotema*cos(angulo), apotema*sen(angulo) ];
+        disco( cor + '-vertex-color' , vertices[c][0] , vertices[c][1] , raiovert , cor );
+        disco( cor + '-vertex-monoc' , vertices[c][0] , vertices[c][1] , raiovert , mon );
 
       }
 
-      document.getElementById('iter').value = 0;
+      $('iter').value = 0;
+      $('velo').value = 0;
 
-      semente  = [ W*Math.random() + LT[0] , H*Math.random() + RB[1] ];
+      semente0 = [ rnd(W) + LT[0] , rnd(H) + RB[1] ];
+      semente  = semente0;
 
-      disco( 'semente', semente[0], semente[1], raiovert, 'white' );
+      id = 'semente0';
+      context[id].clearRect(0,0,enatW,enatH);
+      disco( id , semente0[0] , semente0[1] , raiovert , sem );
+      $('canvas-'+id).style.visibility = visibilidade[id] ? 'visible' : 'hidden';
+      $(id).checked = visibilidade[id];
 
-      semente0 = semente;
+      id                    = 'sementei';
+      semi                  = document.createElement('canvas');
+      semi.id               = 'canvas-' + id;
+      semi.width            = enatW;
+      semi.height           = enatH;
+      semi.onclick          = function(){ set('vis',this) };
+      semi.style.visibility = visibilidade[id] ? 'visible' : 'hidden';
+      context[id]           = semi.getContext('2d');
+      $(id).checked         = visibilidade[id];
+      canvases.appendChild(semi);
 
     }
 
@@ -272,21 +521,40 @@
     function mainloop()
     {
 
-      cor      = Math.floor((10*Math.random()))%valor['N'];
-      semente1 = [ semente0[0]+(vertices[cor][0]-semente0[0])*valor['fator'] , semente0[1]+(vertices[cor][1]-semente0[1])*valor['fator'] ];
+      var c        = Math.floor((rnd(valor['N'])))%valor['N'];
+      var cor      = cores[c];
+      var sementei = [
+                       semente[0] + ( vertices[c][0] - semente[0] ) * valor['fator'] ,
+                       semente[1] + ( vertices[c][1] - semente[1] ) * valor['fator']
+                     ];
 
-      ponto( 'pontos', semente1[0], semente1[1],                                cores[cor] );
-      disco( 'discos', semente1[0], semente1[1], raiodisc,                      cores[cor] );
-      linha( 'linhas', semente0[0], semente0[1], semente1[0], semente1[1], 0.2, cores[cor] );
+      context['sementei'].clearRect(0,0,enatW,enatH);
+      disco( 'sementei' , sementei[0] , sementei[1] , raiodisc , sem );
 
-      semente0 = semente1;
+      ponto( cor + '-pontos-color' , sementei[0] , sementei[1] ,                                   cor );
+      ponto( cor + '-pontos-monoc' , sementei[0] , sementei[1] ,                                   mon );
+      disco( cor + '-discos-color' , sementei[0] , sementei[1] , raiodisc    ,                     cor );
+      disco( cor + '-discos-monoc' , sementei[0] , sementei[1] , raiodisc    ,                     mon );
+      linha( cor + '-linhas-color' , semente [0] , semente [1] , sementei[0] , sementei[1] , 0.2 , cor );
+      linha( cor + '-linhas-monoc' , semente [0] , semente [1] , sementei[0] , sementei[1] , 0.2 , mon );
 
-      document.getElementById('iter'            ).value ++;
-      document.getElementById('iter-'+cores[cor]).value ++;
+      semente = sementei;
 
-      for ( var i=0; i<valor['N']; i++ )
+      $(     'iter').value ++;
+      $(cor+'-iter').value ++;
+
+      var agora = new Date();
+      $('agora').value = agora.date();
+      var tempo = ( agora.getTime() - inicio.getTime() ) / 1000;
+
+      $(    'tempo').value = tempo.toFixed(3) + ' s';
+      $(     'velo').value = ( $(     'iter').value / tempo ).toFixed(2);
+      $(cor+'-velo').value = ( $(cor+'-iter').value / tempo ).toFixed(2);
+
+      for ( var c=0; c<valor['N']; c++ )
       {
-        document.getElementById('porc-'+cores[i]).value = ( 100 * document.getElementById('iter-'+cores[i]).value / document.getElementById('iter').value ).toFixed(2) + '%';
+        cor = cores[c];
+        $(cor+'-porc').value = ( 100 * $(cor+'-iter').value / $('iter').value ).toFixed(2) + '%';
       }
 
       tout = setTimeout(mainloop, valor['delay']);
@@ -297,6 +565,8 @@
 
     function rodar()
     {
+      inicio = new Date();
+      $('inicio').value = inicio.date();;
       tout = setTimeout(mainloop, valor['delay']);
     }
 
@@ -305,13 +575,6 @@
     function parar()
     {
       clearTimeout(tout);
-    }
-
-
-
-    function iid(id)
-    {
-      return id.split('-')[1];
     }
 
 
@@ -332,7 +595,6 @@
 
     function ponto(canvasid, x, y, cor)
     {
-      canvasid = 'c-' + canvasid;
       cor = colornames[cor];
       var idx = ( x2col(x) + y2lin(y)*enatW )*4;
       dataset = context[canvasid].getImageData(0, 0, enatW, enatH);
@@ -347,7 +609,6 @@
 
     function disco(canvasid, cx, cy, raio, cor)
     {
-      canvasid = 'c-' + canvasid;
       context[canvasid].beginPath();
       context[canvasid].fillStyle = cor;
       context[canvasid].arc(x2col(cx), y2lin(cy), raio, 0, 2*pi, false);
@@ -358,13 +619,56 @@
 
     function linha(canvasid, x0, y0, x1, y1, espessura, cor)
     {
-      canvasid = 'c-' + canvasid;
       context[canvasid].beginPath();
       context[canvasid].strokeStyle = cor;
       context[canvasid].lineWidth = espessura;
       context[canvasid].moveTo(x2col(x0), y2lin(y0));
       context[canvasid].lineTo(x2col(x1), y2lin(y1));
       context[canvasid].stroke();
+    }
+
+
+
+    String.prototype.lpad = function(padString, length)
+    {
+      var str = this;
+      while (str.length < length) str = padString + str;
+      return str;
+    }
+
+
+
+    Number.prototype.zpad = function()
+    {
+      return String(this).lpad('0',2);
+    }
+
+
+
+    Date.prototype.date = function()
+    {
+      var Y =      this.getFullYear ().zpad();
+      var m =   (1+this.getMonth    ()).zpad();
+      var d =      this.getDate     ().zpad();
+      var a = week[this.getDay      ()];
+      var H =      this.getHours    ().zpad();
+      var M =      this.getMinutes  ().zpad();
+      var S =      this.getSeconds  ().zpad();
+      return Y + '/' + m + '/' + d + ' ' + a + ' ' + H + ':' + M + ':' + S;
+    }
+
+
+
+    function $(id)
+    {
+      return document.getElementById(id);
+    }
+
+
+
+    function rnd(n)
+    {
+      return n*Math.random();
     }
 
 
@@ -396,8 +700,18 @@
       switch (type)
       {
 
+        case 'all' :
+          for ( var c=0; c<valor['N']; c++ )
+          {
+            var cor = cores[c];
+            var id  = cor + '-' + obj.id;
+            $(id).checked = obj.checked;
+            set('vis',$(id));
+          }
+          break;
+
         case 'vis' :
-          canvas['c-'+obj.id].style.visibility = obj.checked ? 'visible' : 'hidden';
+          $('canvas-'+obj.id).style.visibility = obj.checked ? 'visible' : 'hidden';
           break;
 
         case 'bin' :
@@ -422,51 +736,46 @@
 
 <body>
 
-  <div id="control">
+  <div id="canvases">
+    <canvas id="canvas-semente0"></canvas>
+  </div>
 
-    <input type="button" id="outro" value="Outro" onclick="location=''"  />
+  <div id="controle">
 
-    <select id="N" onchange="plotvert(this)">
+    <select id="N" onchange="ambiente()">
       <option>#vértices</option>
-      <option> 3</option>
-      <option> 4</option>
-      <option> 5</option>
-      <option> 6</option>
-      <option> 7</option>
-      <option> 8</option>
-      <option> 9</option>
-      <option>10</option>
     </select>
 
-    <input type="text" id="fator" value="" onchange="valor[this.id]=this.value" title="Fator" />
+    <input type="text"     id="fator"  value="Fator"   onchange="valor[this.id]=this.value" title="Fator" />
+    <input type="button"   id="estado" value="Iniciar" onclick="set('bin',this)" disabled="disabled" />
+    <input type="button"   id="salvar" value="Salvar"  onclick="location=canvas['canvas-linhas'].toDataURL('image/png').replace('image/png','image/octet-stream')" />
+    <input type="button"   id="outro"  value="Outro"   onclick="location=''" />
 
-    <span><input type="checkbox" id="delay"    onclick="set('bin',this)" /><label for="delay"   >Rápido  </label></span>
-    <span><input type="checkbox" id="vertices" onclick="set('vis',this)" /><label for="vertices">Vértices</label></span>
-    <span><input type="checkbox" id="semente"  onclick="set('vis',this)" /><label for="semente" >Semente </label></span>
-    <span><input type="checkbox" id="pontos"   onclick="set('vis',this)" /><label for="pontos"  >Pontos  </label></span>
-    <span><input type="checkbox" id="discos"   onclick="set('vis',this)" /><label for="discos"  >Discos  </label></span>
-    <span><input type="checkbox" id="linhas"   onclick="set('vis',this)" /><label for="linhas"  >Linhas  </label></span>
+    <div id="realtime">
 
-    <input type="button" id="estado" value="Iniciar" onclick="set('bin',this)" />
-    <input type="button" id="salvar" value="Salvar"  onclick="location=canvas['c-linhas'].toDataURL('image/png').replace('image/png','image/octet-stream')" />
+            <input type="text"     id="inicio" disabled="disabled" value="Hora de Início" />
+            <input type="text"     id="agora"  disabled="disabled" value="Agora" />
+            <input type="text"     id="tempo"  disabled="disabled" value="Tempo em Execução" />
 
-  </div>
+      <span><input type="checkbox" id="delay"    onclick="set('bin',this)" /><label for="delay"   >Rápido   </label></span>
+      <span><input type="checkbox" id="semente0" onclick="set('vis',this)" /><label for="semente0">Semente 0</label></span>
+      <span><input type="checkbox" id="sementei" onclick="set('vis',this)" /><label for="sementei">Semente i</label></span>
 
-  <div id="canvases">
-    <canvas id="c-vertices"   ></canvas>
-    <canvas id="c-semente"    ></canvas>
-    <canvas id="c-pontos"     ></canvas>
-    <canvas id="c-discos"     ></canvas>
-    <canvas id="c-linhas"     ></canvas>
-<!--
-    <canvas id="c-pontos-mono"></canvas>
-    <canvas id="c-discos-mono"></canvas>
-    <canvas id="c-linhas-mono"></canvas>
--->
-  </div>
+      <div id="cabecalho">
+        <span title="Vértices Coloridos"     ><label for="vertex-color">V</label><input type="checkbox" id="vertex-color" onclick="set('all',this)" /></span>
+        <span title="Vértices Monocromáticos"><label for="vertex-monoc">v</label><input type="checkbox" id="vertex-monoc" onclick="set('all',this)" /></span>
+        <span title="Pontos Coloridos"       ><label for="pontos-color">P</label><input type="checkbox" id="pontos-color" onclick="set('all',this)" /></span>
+        <span title="Pontos Monocromáticos"  ><label for="pontos-monoc">p</label><input type="checkbox" id="pontos-monoc" onclick="set('all',this)" /></span>
+        <span title="Discos Coloridos"       ><label for="discos-color">D</label><input type="checkbox" id="discos-color" onclick="set('all',this)" /></span>
+        <span title="Discos Monocromáticos"  ><label for="discos-monoc">d</label><input type="checkbox" id="discos-monoc" onclick="set('all',this)" /></span>
+        <span title="Linhas Coloridos"       ><label for="linhas-color">L</label><input type="checkbox" id="linhas-color" onclick="set('all',this)" /></span>
+        <span title="Linhas Monocromáticos"  ><label for="linhas-monoc">l</label><input type="checkbox" id="linhas-monoc" onclick="set('all',this)" /></span>
+        <input type="text" id="iter" disabled="disabled" value="#iterações" /><!--
+     --><input type="text" id="velo" disabled="disabled" value="velocid" class="velocidade" />
+      </div>
 
-  <div id="sorteios">
-    <input type="text" id="iter" disabled="disabled" value="#iterações" />
+    </div>
+
   </div>
 
 </body>
