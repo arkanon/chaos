@@ -389,8 +389,15 @@
       var c, v, t, m;
       var el, container, div, id, semi, iter, velo, porc;
 
-      valor['N'    ]   = $('N').value;
-      valor['fator']   = valor['N'] == 3 ? .5 : 1/(1+1/(1+2*cos(2*pi/valor['N'])));
+      valor['N'    ] = $('N').value;
+
+//    valor['fator'] = valor['N'] == 3 ? .5 : 1/(1+1/(1+2*cos(2*pi/valor['N'])));
+
+      var T    = 1 + int(valor['N']/4);
+      var alfa = 2*pi/valor['N'];
+
+      valor['fator'] = 1 - sqr( (1-cos(alfa))/(1-cos(T*alfa)) ) / (2*cos((T-1)*alfa/2));
+
       $('fator').value = valor['fator'].toFixed(7);
 
       $('estado').disabled = '';
@@ -595,20 +602,6 @@
 
 
 
-    function x2col(x)
-    {
-      return Math.round( natO[0] + x/sc );
-    }
-
-
-
-    function y2lin(y)
-    {
-      return Math.round( natO[1] - y/sc );
-    }
-
-
-
     function ponto(canvasid, x, y, cor)
     {
       cor = colornames[cor];
@@ -645,22 +638,6 @@
 
 
 
-    String.prototype.lpad = function(padString, length)
-    {
-      var str = this;
-      while (str.length < length) str = padString + str;
-      return str;
-    }
-
-
-
-    Number.prototype.zpad = function()
-    {
-      return String(this).lpad('0',2);
-    }
-
-
-
     Date.prototype.date = function()
     {
       var Y =      this.getFullYear ().zpad();
@@ -675,38 +652,28 @@
 
 
 
-    function $(id)
+    String.prototype.lpad = function(padString, length)
     {
-      return document.getElementById(id);
+      var str = this;
+      while (str.length < length) str = padString + str;
+      return str;
     }
 
 
 
-    function rnd(n)
-    {
-      return n*Math.random();
-    }
+    Number.prototype.zpad = function() { return String(this).lpad('0',2) }
 
+    function x2col(x) { return Math.round( natO[0] + x/sc ) }
+    function y2lin(y) { return Math.round( natO[1] - y/sc ) }
 
+    function sqr(n) { return Math.sqrt(n)    }
+    function int(n) { return parseInt(n)     }
+    function rnd(n) { return n*Math.random() }
+    function sen(n) { return Math.sin(n)     }
+    function cos(n) { return Math.cos(n)     }
 
-    function sen(n)
-    {
-      return Math.sin(n);
-    }
-
-
-
-    function cos(n)
-    {
-      return Math.cos(n);
-    }
-
-
-
-    function L(varname)
-    {
-      console.log( varname === undefined ? '' : varname + ' = ' + eval(varname) );
-    }
+    function $  (id)      { return document.getElementById(id) }
+    function L  (varname) { console.log( varname === undefined ? '' : varname + ' = ' + eval(varname) ) }
 
 
 
