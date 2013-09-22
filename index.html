@@ -3,6 +3,7 @@
 <!--
 
      Arkanon <arkanon@lsd.org.br>
+     2013/09/22 (Sun) 07:54:19 (BRT)
      2013/09/20 (Sex) 08:33:53 (BRS)
      2013/09/17 (Tue) 21:59:40 (BRS)
      2013/09/17 (Tue) 05:38:31 (BRS)
@@ -385,19 +386,16 @@
     function ambiente()
     {
 
-      var cor, view, tag, mode;
+      var T, alfa, cor, view, tag, mode;
       var c, v, t, m;
       var el, container, div, id, semi, iter, velo, porc;
 
-      valor['N'    ] = $('N').value;
+      valor['N'] = $('N').value;
 
-//    valor['fator'] = valor['N'] == 3 ? .5 : 1/(1+1/(1+2*cos(2*pi/valor['N'])));
+      T    = 1 + int(valor['N']/4);
+      alfa = 2*pi/valor['N'];
 
-      var T    = 1 + int(valor['N']/4);
-      var alfa = 2*pi/valor['N'];
-
-      valor['fator'] = 1 - sqr( (1-cos(alfa))/(1-cos(T*alfa)) ) / (2*cos((T-1)*alfa/2));
-
+      valor['fator']   = 1 - sqr( (1-cos(alfa))/(1-cos(T*alfa)) ) / (2*cos((T-1)*alfa/2));
       $('fator').value = valor['fator'].toFixed(7);
 
       $('estado').disabled = '';
