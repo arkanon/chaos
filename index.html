@@ -3,7 +3,7 @@
 <!--
 
      Arkanon <arkanon@lsd.org.br>
-     2013/09/22 (Sun) 07:54:19 (BRT)
+     2013/09/22 (Sun) 16:29:17 (BRS)
      2013/09/20 (Sex) 08:33:53 (BRS)
      2013/09/17 (Tue) 21:59:40 (BRS)
      2013/09/17 (Tue) 05:38:31 (BRS)
@@ -81,14 +81,21 @@
       display: inline-block;
     }
 
+    #tamanho
+    {
+      text-align: center;
+    }
+
+    #tamanho,
     #N,
     #fator,
+    #rastro,
     #estado,
     #salvar,
     #outro
     {
       display: block;
-      width: 88px;
+      width: 95px;
     }
 
     #inicio,
@@ -103,7 +110,7 @@
     {
       position: relative;
       display: block;
-      width: 80px;
+      width: 87px;
     }
 
     #controle>span>input[type=checkbox],
@@ -288,16 +295,16 @@
                    'green'           // 15
 
                  ];
-    var views  = [ 'vertex' , 'pontos' , 'discos' , 'linhas' ];
     var tags   = [ 'canvas' , 'input' ];
+    var views  = [ 'vertex' , 'pontos' , 'discos' , 'linhas' ];
     var modes  = [ 'color' , 'monoc' ];
 
     var parametros =
     {
 
       'estado'  : {
-                    'Iniciar' : function() { rodar() },
-                    'Parar'   : function() { parar() }
+                    'Iniciar' : function() { rodar(true) },
+                    'Parar'   : function() { parar()     }
                   },
 
     };
@@ -306,19 +313,21 @@
     {
       'semente0'     : 1,
       'sementei'     : 1,
-      'vertex-color' : 0,
+      'semanter'     : 1,
+      'crastro'      : 1,
+      'vertex-color' : 1,
       'vertex-monoc' : 0,
-      'pontos-color' : 1,
+      'pontos-color' : 0,
       'pontos-monoc' : 0,
-      'discos-color' : 0,
+      'discos-color' : 1,
       'discos-monoc' : 0,
-      'linhas-color' : 0,
+      'linhas-color' : 1,
       'linhas-monoc' : 0,
     };
 
 
 
-    var LT, RB, W, H, pr, natW, natH, enatW, enatH, sc, tout, tout2;
+    var W, H, pr, natW, natH, enatW, enatH, sc;
     var inicio, reinicio, tempo, semente, semente0, realtime, canvases;
     var valor      = [];
     var canvas     = [];
@@ -330,11 +339,17 @@
     var rodando    = false;
     var offset     = 0;
 
-          LT = [ -250 ,  250 ];
-          RB = [  250 , -250 ];
-    raiovert = 5;
-    raiodisc = 2;
-    delay    = 1000; // milissegundos
+    var vertraio   =    5;
+    var discraio   =    2;
+    var linhaesp   =   .2;
+    var rastroesp  =    1;
+    var rastromax  =   18;
+    var rastrodef  =    4;
+    var rastro     =    0;
+    var anterior   = 0;
+    var delay      = 1000; // milissegundos
+    var LT         = [ -250 ,  250 ];
+    var RB         = [  250 , -250 ];
 
 
 
@@ -358,6 +373,8 @@
       enatW   = 1 + Math.round(natW); // effective native width
       enatH   = 1 + Math.round(natH); // effective native height
 
+      $('tamanho').value = enatW + '×' + enatH + 'px';
+
       natO[0] = Math.abs(LT[0]/sc);   // native origin x
       natO[1] = Math.abs(LT[1]/sc);   // native origin y
 
@@ -379,6 +396,13 @@
         $('N').appendChild(option);
       }
 
+      for (i=1; i<=rastromax; i++)
+      {
+        option = document.createElement('option');
+        option.innerHTML = i;
+        $('rastro').appendChild(option);
+      }
+
     }
 
 
@@ -386,24 +410,21 @@
     function ambiente()
     {
 
+      rodar(false);
+
       var T, alfa, cor, view, tag, mode;
       var c, v, t, m;
-      var el, container, div, id, semi, iter, velo, porc;
+      var el, container, div, id, semi, crastro, iter, velo, porc;
 
       valor['N'] = $('N').value;
-
-      T    = 1 + int(valor['N']/4);
-      alfa = 2*pi/valor['N'];
-
-      valor['fator']   = 1 - sqr( (1-cos(alfa))/(1-cos(T*alfa)) ) / (2*cos((T-1)*alfa/2));
-      $('fator').value = valor['fator'].toFixed(7);
+      var N = valor['N'];
 
       $('estado').disabled = '';
 
       while ( realtime.lastChild.id != 'cabecalho'       ) realtime.removeChild(realtime.lastChild);
       while ( canvases.lastChild.id != 'canvas-semente0' ) canvases.removeChild(canvases.lastChild);
 
-      for ( c=0; c<valor['N']; c++ )
+      for ( c=0; c<N; c++ )
       {
 
         cor    = cores[c];
@@ -411,31 +432,31 @@
         div    = document.createElement('div');
         div.id = cor;
 
-        for (v in views)
+        for (t in tags)
         {
 
-          view = views[v];
+          tag = tags[t];
 
-          for (t in tags)
+          for (v in views)
           {
 
-            tag = tags[t];
+            view = views[v];
 
             for (m in modes)
             {
 
               mode = modes[m];
-              id   = cor + '-' + view + '-' + mode;
-              el   = document.createElement(tag);
+
+              id = cor + '-' + view + '-' + mode;
+              el = document.createElement(tag);
 
               switch (tag)
               {
 
                 case ('canvas'):
-                  el.id               = 'canvas-' + id;
+                  el.id               = tag + '-' + id;
                   el.width            = enatW;
                   el.height           = enatH;
-                  el.style.visibility = visibilidade[ view + '-' + mode ] ? 'visible' : 'hidden';
                   context[id]         = el.getContext('2d');
                   container           = canvases;
                   break;
@@ -444,7 +465,6 @@
                   el.setAttribute( 'type' , 'checkbox' );
                   el.id        = id;
                   el.className = 'individual';
-                  el.checked   = visibilidade[ view + '-' + mode ];
                   el.onclick   = function(){ set('vis',this) };
                   container    = div;
                   break;
@@ -487,11 +507,11 @@
 
         realtime.appendChild(div );
 
-        angulo      = pi/2 - 2*pi*c/valor['N'];
-        apotema     =  H/2 - raiovert - 3;
+        angulo      = pi/2 - 2*pi*c/N;
+        apotema     =  H/2 - vertraio - 3;
         vertices[c] = [ apotema*cos(angulo), apotema*sen(angulo) ];
-        disco( cor + '-vertex-color' , vertices[c][0] , vertices[c][1] , raiovert , cor );
-        disco( cor + '-vertex-monoc' , vertices[c][0] , vertices[c][1] , raiovert , mon );
+        disco( cor + '-vertex-color' , vertices[c][0] , vertices[c][1] , vertraio , cor );
+        disco( cor + '-vertex-monoc' , vertices[c][0] , vertices[c][1] , vertraio , mon );
 
       }
 
@@ -499,24 +519,80 @@
       $('velo').value = 0;
 
       semente0 = [ rnd(W) + LT[0] , rnd(H) + RB[1] ];
-      semente  = semente0;
+      semente  = [ semente0 ];
 
       id = 'semente0';
       context[id].clearRect(0,0,enatW,enatH);
-      disco( id , semente0[0] , semente0[1] , raiovert , sem );
-      $('canvas-'+id).style.visibility = visibilidade[id] ? 'visible' : 'hidden';
-      $(id).checked = visibilidade[id];
+      disco( id , semente0[0] , semente0[1] , vertraio , sem );
+      sem0                    = $('canvas-'+id);
+      if (!rodando)
+      {
+        $(id).checked             = visibilidade[id];
+        sem0.style.visibility     = visibilidade[id] ? 'visible' : 'hidden';
+      }
 
-      id                    = 'sementei';
-      semi                  = document.createElement('canvas');
-      semi.id               = 'canvas-' + id;
-      semi.width            = enatW;
-      semi.height           = enatH;
-      semi.onclick          = function(){ set('vis',this) };
-      semi.style.visibility = visibilidade[id] ? 'visible' : 'hidden';
-      context[id]           = semi.getContext('2d');
-      $(id).checked         = visibilidade[id];
+      id                          = 'sementei';
+      semi                        = document.createElement('canvas');
+      semi.id                     = 'canvas-' + id;
+      semi.width                  = enatW;
+      semi.height                 = enatH;
+      semi.onclick                = function(){ set('vis',this) };
+      context[id]                 = semi.getContext('2d');
+      if (!rodando)
+      {
+        $(id).checked             = visibilidade[id];
+        semi.style.visibility     = visibilidade[id] ? 'visible' : 'hidden';
+      }
       canvases.appendChild(semi);
+
+      id                          = 'crastro';
+      crastro                     = document.createElement('canvas');
+      crastro.id                  = 'canvas-' + id;
+      crastro.width               = enatW;
+      crastro.height              = enatH;
+      crastro.onclick             = function(){ set('vis',this) };
+      context[id]                 = crastro.getContext('2d');
+      if (!rodando)
+      {
+        $(id).checked             = visibilidade[id];
+        crastro.style.visibility  = visibilidade[id] ? 'visible' : 'hidden';
+      }
+      canvases.appendChild(crastro);
+
+      id                          = 'semanter';
+      semanter                    = document.createElement('canvas');
+      semanter.id                 = 'canvas-' + id;
+      semanter.width              = enatW;
+      semanter.height             = enatH;
+      semanter.onclick            = function(){ set('vis',this) };
+      context[id]                 = semanter.getContext('2d');
+      if (!rodando)
+      {
+        $(id).checked             = visibilidade[id];
+        semanter.style.visibility = visibilidade[id] ? 'visible' : 'hidden';
+      }
+      canvases.appendChild(semanter);
+
+      if (!rodando)
+      {
+
+        T    = 1 + int(N/4);
+        alfa = 2*pi/N;
+
+        valor['fator']   = 1 - sqr( (1-cos(alfa))/(1-cos(T*alfa)) ) / (2*cos((T-1)*alfa/2));
+        $('fator').value = valor['fator'].toFixed(7);
+
+        $('rastro').getElementsByTagName('option')[rastrodef].selected = 'selected';
+
+      }
+
+      for (v in views)
+        for (m in modes)
+        {
+          id = views[v] + '-' + modes[m];
+          if (!rodando) $(id).checked = visibilidade[id];
+          set('all', $(id));
+        }
 
     }
 
@@ -525,27 +601,72 @@
     function mainloop()
     {
 
+      var N      = valor['N'];
+      var fator  = valor['fator'];
+      var rastro = int($('rastro').value);
+
       if (rodando)
       {
 
-        var c        = Math.floor((rnd(valor['N'])))%valor['N'];
-        var cor      = cores[c];
-        var sementei = [
-                         semente[0] + ( vertices[c][0] - semente[0] ) * valor['fator'] ,
-                         semente[1] + ( vertices[c][1] - semente[1] ) * valor['fator']
-                       ];
+        var c       = int((rnd(N)))%N;
+        var cor     = cores[c];
+        var rastroi = (anterior+1)%(rastro+1);
+
+        if ( semente[anterior] !== undefined )
+             semente[rastroi ]   = [
+                                     semente[anterior][0] + ( vertices[c][0] - semente[anterior][0] ) * fator ,
+                                     semente[anterior][1] + ( vertices[c][1] - semente[anterior][1] ) * fator
+                                   ];
 
         context['sementei'].clearRect(0,0,enatW,enatH);
-        disco( 'sementei' , sementei[0] , sementei[1] , raiodisc , sem );
+        context['semanter'].clearRect(0,0,enatW,enatH);
+        context['crastro' ].clearRect(0,0,enatW,enatH);
 
-        ponto( cor + '-pontos-color' , sementei[0] , sementei[1] ,                                   cor );
-        ponto( cor + '-pontos-monoc' , sementei[0] , sementei[1] ,                                   mon );
-        disco( cor + '-discos-color' , sementei[0] , sementei[1] , raiodisc    ,                     cor );
-        disco( cor + '-discos-monoc' , sementei[0] , sementei[1] , raiodisc    ,                     mon );
-        linha( cor + '-linhas-color' , semente [0] , semente [1] , sementei[0] , sementei[1] , 0.2 , cor );
-        linha( cor + '-linhas-monoc' , semente [0] , semente [1] , sementei[0] , sementei[1] , 0.2 , mon );
+        for ( var i=0; i<rastro; i++ )
+            if (
+                 semente[(rastro+rastroi-i  )%(rastro+1)] !== undefined &&
+                 semente[(rastro+rastroi-i+1)%(rastro+1)] !== undefined
+               )
+            {
 
-        semente = sementei;
+               disco
+               (
+                 'semanter' ,
+                 semente[(rastro+rastroi-i  )%(rastro+1)][0] ,
+                 semente[(rastro+rastroi-i  )%(rastro+1)][1] ,
+                 discraio ,
+                 sem
+               );
+
+               linha
+               (
+                 'crastro' ,
+                 semente[(rastro+rastroi-i  )%(rastro+1)][0] ,
+                 semente[(rastro+rastroi-i  )%(rastro+1)][1] ,
+                 semente[(rastro+rastroi-i+1)%(rastro+1)][0] ,
+                 semente[(rastro+rastroi-i+1)%(rastro+1)][1] ,
+                 rastroesp ,
+                 sem
+               );
+
+            }
+
+        if ( semente[rastroi] !== undefined )
+        {
+          disco( 'sementei' , semente[rastroi][0] , semente[rastroi][1] , vertraio , sem );
+          ponto( cor + '-pontos-color' , semente[rastroi ][0] , semente[rastroi ][1] ,            cor );
+          ponto( cor + '-pontos-monoc' , semente[rastroi ][0] , semente[rastroi ][1] ,            mon );
+          disco( cor + '-discos-color' , semente[rastroi ][0] , semente[rastroi ][1] , discraio , cor );
+          disco( cor + '-discos-monoc' , semente[rastroi ][0] , semente[rastroi ][1] , discraio , mon );
+        }
+
+        if ( semente[anterior] !== undefined )
+        {
+          linha( cor + '-linhas-color' , semente[anterior][0] , semente[anterior][1] , semente[rastroi][0] , semente[rastroi][1] , linhaesp , cor );
+          linha( cor + '-linhas-monoc' , semente[anterior][0] , semente[anterior][1] , semente[rastroi][0] , semente[rastroi][1] , linhaesp , mon );
+        }
+
+        anterior = rastroi;
 
         $(     'iter').value ++;
         $(cor+'-iter').value ++;
@@ -554,11 +675,17 @@
         $('agora').value = agora.date();
         tempo = offset + ( agora.getTime() - reinicio.getTime() ) / 1000;
 
-        $(    'tempo').value = tempo.toFixed(3) + ' s';
+        ms = String(tempo.toFixed(3)).split('.')[1];
+        ts = int(tempo);
+        s  = (ts%60).zpad();
+        ts = int(ts/60);
+        m  = (ts%60).zpad();
+        h  = (int(ts/60)).zpad();
+        $(    'tempo').value = h + ':' + m + ':' + s + '.' + ms;
         $(     'velo').value = ( $(     'iter').value / tempo ).toFixed(2);
         $(cor+'-velo').value = ( $(cor+'-iter').value / tempo ).toFixed(2);
 
-        for ( var c=0; c<valor['N']; c++ )
+        for ( var c=0; c<N; c++ )
         {
           cor = cores[c];
           $(cor+'-porc').value = ( 100 * $(cor+'-iter').value / $('iter').value ).toFixed(2) + '%';
@@ -574,9 +701,10 @@
 
 
 
-    function rodar()
+    function rodar(enterloop)
     {
-      if ( inicio === undefined )
+
+      if ( inicio === undefined && enterloop || rodando )
       {
           inicio = new Date();
         reinicio = inicio;
@@ -586,8 +714,13 @@
       {
         reinicio = new Date();
       }
-      rodando = true;
-      mainloop();
+
+      if (enterloop)
+      {
+        rodando = true;
+        mainloop();
+      }
+
     }
 
 
@@ -638,7 +771,7 @@
 
     Date.prototype.date = function()
     {
-      var Y =      this.getFullYear ().zpad();
+      var Y =      this.getFullYear ();
       var m =   (1+this.getMonth    ()).zpad();
       var d =      this.getDate     ().zpad();
       var a = week[this.getDay      ()];
@@ -670,37 +803,49 @@
     function sen(n) { return Math.sin(n)     }
     function cos(n) { return Math.cos(n)     }
 
-    function $  (id)      { return document.getElementById(id) }
-    function L  (varname) { console.log( varname === undefined ? '' : varname + ' = ' + eval(varname) ) }
+    function $   (id)       { return document.getElementById(id) }
+    function L   (varname)  { console.log( varname === undefined ? '' : varname + ' = ' + eval(varname) ) }
+    function save(canvasid) { location = $(canvasid).toDataURL('image/png').replace('image/png','image/octet-stream') }
 
 
 
     function set(type, obj)
     {
 
+      var c, arr, suf, sum, id, p, ids, i;
+
       switch (type)
       {
 
         case 'all' :
-          for ( var c=0; c<valor['N']; c++ )
+          for ( c=0; c<valor['N']; c++ )
           {
             var cor = cores[c];
             var id  = cor + '-' + obj.id;
             $(id).checked = obj.checked;
-            set('vis',$(id));
+            $('canvas-'+id).style.visibility = obj.checked ? 'visible' : 'hidden';
           }
           break;
 
         case 'vis' :
           $('canvas-'+obj.id).style.visibility = obj.checked ? 'visible' : 'hidden';
+          arr = obj.id.split('-');
+          if (arr.length > 1)
+          {
+            arr.shift();
+            suf = arr.join('-');
+            sum = 0;
+            for ( c=0; c<valor['N']; c++ ) sum += $(cores[c] + '-' + suf).checked;
+            $(suf).checked = sum==valor['N'];
+          }
           break;
 
         case 'bin' :
-          var id    = obj.id;
-          var p     = parametros[id];
-          var ids   = Object.keys(p);
-          var i     = ids.indexOf(obj.value);
-          obj.value =  ids[(i+1)%2];
+          id  = obj.id;
+          p   = parametros[id];
+          ids = Object.keys(p);
+          i   = ids.indexOf(obj.value);
+          obj.value = ids[(i+1)%2];
           if (typeof p[ids[(i+1)%2]] === 'function') p[ids[i]]();
           else                           valor[id] = p[ids[i]];
           break;
@@ -711,9 +856,10 @@
 
 
 
-    // Only add setZeroTimeout to the window object, and hide everything else in a closure.
-    // <http://dbaron.org/log/20100309-faster-timeouts>
+    // setZeroTimeout <http://dbaron.org/log/20100309-faster-timeouts>
     (
+
+      // add only to the window object, and hide everything else in a closure.
 
       function()
       {
@@ -765,26 +911,28 @@
 
   <div id="controle">
 
-    <select id="N" onchange="ambiente()">
-      <option>#vértices</option>
-    </select>
-
-          <input type="text"     id="fator"  value="Fator"   onchange="valor[this.id]=this.value" title="Fator" />
-    <span><input type="checkbox" id="rapido" /><label for="rapido" >Rápido</label></span>
-          <input type="button"   id="estado" value="Iniciar" onclick="set('bin',this)" disabled="disabled" />
-          <input type="button"   id="salvar" value="Salvar"  onclick="location=canvas['canvas-linhas'].toDataURL('image/png').replace('image/png','image/octet-stream')" />
-          <input type="button"   id="outro"  value="Outro"   onclick="location=''" />
+            <input type="text"     id="tamanho" value=""                  title="largura × altura"             disabled="disabled" />
+            <select                id="N"                                 title="#vértices"                                        onchange="ambiente()"                      ><option>#vértices</option></select>
+            <input type="text"     id="fator"   value="fator"             title="fator"                                            onchange="valor[this.id]=this.value"      />
+            <select                id="rastro"                            title="#rastro"                                          onchange="valor[this.id]=this.value"       ><option value="0">#rastro</option></select>
+      <span><input type="checkbox" id="rapido"                                                                                                                               /><label for="rapido" />Rápido</label></span>
+            <input type="button"   id="estado"  value="Iniciar"                                                disabled="disabled" onclick="set('bin',this)"                 />
+            <input type="button"   id="salvar"  value="Salvar"            title="Coloque nome e extensão (.png)"                   onclick="save('canvas-red-pontos-color')" />
+            <input type="button"   id="outro"   value="Outro"                                                                      onclick="location=''"                     />
 
     <div id="realtime">
 
-            <input type="text"     id="inicio" disabled="disabled" value="Hora de Início" />
-            <input type="text"     id="agora"  disabled="disabled" value="Agora" />
-            <input type="text"     id="tempo"  disabled="disabled" value="Tempo em Execução" />
+            <input type="text"     id="inicio"  value="Hora de Início"    title="Hora de Início"               disabled="disabled"                                           />
+            <input type="text"     id="agora"   value="Agora"             title="Agora"                        disabled="disabled"                                           />
+            <input type="text"     id="tempo"   value="Tempo em Execução" title="Tempo em Execução (h:m:s.ms)" disabled="disabled"                                           />
 
-      <span><input type="checkbox" id="semente0" onclick="set('vis',this)" /><label for="semente0">Semente 0</label></span>
-      <span><input type="checkbox" id="sementei" onclick="set('vis',this)" /><label for="sementei">Semente i</label></span>
+      <span><input type="checkbox" id="semente0"                                                                                   onclick="set('vis',this)"                 /><label for="semente0">Semente 0 </label></span>
+      <span><input type="checkbox" id="sementei"                                                                                   onclick="set('vis',this)"                 /><label for="sementei">Semente i </label></span>
+      <span><input type="checkbox" id="semanter"                                                                                   onclick="set('vis',this)"                 /><label for="semanter">Anteriores</label></span>
+      <span><input type="checkbox" id="crastro"                                                                                    onclick="set('vis',this)"                 /><label for="crastro" >Rastro    </label></span>
 
       <div id="cabecalho">
+
         <span title="Vértices Coloridos"     ><label for="vertex-color">V</label><input type="checkbox" id="vertex-color" onclick="set('all',this)" /></span>
         <span title="Vértices Monocromáticos"><label for="vertex-monoc">v</label><input type="checkbox" id="vertex-monoc" onclick="set('all',this)" /></span>
         <span title="Pontos Coloridos"       ><label for="pontos-color">P</label><input type="checkbox" id="pontos-color" onclick="set('all',this)" /></span>
@@ -793,8 +941,10 @@
         <span title="Discos Monocromáticos"  ><label for="discos-monoc">d</label><input type="checkbox" id="discos-monoc" onclick="set('all',this)" /></span>
         <span title="Linhas Coloridas"       ><label for="linhas-color">L</label><input type="checkbox" id="linhas-color" onclick="set('all',this)" /></span>
         <span title="Linhas Monocromáticas"  ><label for="linhas-monoc">l</label><input type="checkbox" id="linhas-monoc" onclick="set('all',this)" /></span>
-        <input type="text" id="iter" disabled="disabled" value="#iterações" /><!--
-     --><input type="text" id="velo" disabled="disabled" value="velocid" class="velocidade" />
+
+            <input type="text"     id="iter"    value="#iterações"        title="#iterações"                   disabled="disabled"                    /><!--
+         --><input type="text"     id="velo"    value="velocid"           title="velociddade"                  disabled="disabled" class="velocidade" />
+
       </div>
 
     </div>
