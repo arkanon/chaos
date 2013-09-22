@@ -86,6 +86,7 @@
       text-align: center;
     }
 
+    #sobre,
     #tamanho,
     #N,
     #fator,
@@ -98,6 +99,7 @@
       width: 95px;
     }
 
+    #demonst,
     #inicio,
     #agora,
     #tempo
@@ -227,45 +229,76 @@
 
 
 
+    #sobre,
+    #demonst,
     #estado
+    {
+      color: #ffffff;
+      background-color: #fe1a00;
+    }
+
+    #sobre:active,
+    #demonst:active,
+    #estado:active
+    {
+      background-color: #ce0100;
+    }
+
+
+
+/*
+
+    #sobre
+    {
+      color: black;
+      background-color: gold;
+    }
+
+    #sobre:active
+    {
+      background-color: goldenrod;
+    }
+
+*/
+
+
+
+    input[type=button].color
     {
       -webkit-box-shadow: inset 0px 1px 0px 0px #f09393;
          -moz-box-shadow: inset 0px 1px 0px 0px #f09393;
               box-shadow: inset 0px 1px 0px 0px #f09393;
              text-shadow:           1px 1px 0px #b23e35;
-      background-color: #fe1a00;
       background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #fe1a00), color-stop(1, #ce0100) );
       background: -moz-linear-gradient( center top, #fe1a00 5%, #ce0100 100% );
       filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe1a00', endColorstr='#ce0100');
       padding: 1px 0 1px 0;
       border: 1px solid #7a7a7a;
-      color: #ffffff;
     }
 
-    #estado:hover
+    input[type=button].color:hover
     {
       background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ce0100), color-stop(1, #fe1a00) );
       background: -moz-linear-gradient( center top, #ce0100 5%, #fe1a00 100% );
       filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ce0100', endColorstr='#fe1a00');
-      background-color: #ce0100;
     }
 
-    #estado:active
+    input[type=button].color:active
     {
       position: relative;
       top: 1px;
     }
 
-    #estado[disabled=disabled],
-    #estado[disabled=disabled]:active
+    input[disabled=disabled].color,
+    input[disabled=disabled].color:active
     {
-      top: 0;
-           color: black;
-      background: #dddddd;
-      -webkit-box-shadow: none;
-         -mox-box-shadow: none;
-              box-shadow: none;
-             text-shadow: none;
+      top: 0 !important;
+           color: black !important;
+      background: #dddddd !important;
+      -webkit-box-shadow: none !important;
+         -mox-box-shadow: none !important;
+              box-shadow: none !important;
+             text-shadow: none !important;
     }
 
   </style>
@@ -911,12 +944,14 @@
 
   <div id="controle">
 
-            <input type="text"     id="tamanho" value=""                  title="largura × altura"             disabled="disabled" />
+            <input type="button"   id="sobre"   value="O que é isso?"                  class="color"                               onclick="location='http://goo.gl/ZxOdFR'" />
+            <input type="text"     id="tamanho" value=""                  title="largura × altura"             disabled="disabled"                                           />
             <select                id="N"                                 title="#vértices"                                        onchange="ambiente()"                      ><option>#vértices</option></select>
             <input type="text"     id="fator"   value="fator"             title="fator"                                            onchange="valor[this.id]=this.value"      />
+            <input type="button"   id="demonst" value="Como o fator é calculado?"      class="color"                               onclick="location='http://goo.gl/g5Xbll'" />
             <select                id="rastro"                            title="#rastro"                                          onchange="valor[this.id]=this.value"       ><option value="0">#rastro</option></select>
       <span><input type="checkbox" id="rapido"                                                                                                                               /><label for="rapido" />Rápido</label></span>
-            <input type="button"   id="estado"  value="Iniciar"                                                disabled="disabled" onclick="set('bin',this)"                 />
+            <input type="button"   id="estado"  value="Iniciar"                        class="color"           disabled="disabled" onclick="set('bin',this)"                 />
             <input type="button"   id="salvar"  value="Salvar"            title="Coloque nome e extensão (.png)"                   onclick="save('canvas-red-pontos-color')" />
             <input type="button"   id="outro"   value="Outro"                                                                      onclick="location=''"                     />
 
