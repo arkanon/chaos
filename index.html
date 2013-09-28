@@ -3,6 +3,7 @@
 <!--
 
      Arkanon <arkanon@lsd.org.br>
+     2013/09/27 (Sex) 23:31:03 (BRS)
      2013/09/22 (Sun) 17:53:49 (BRS)
      2013/09/20 (Sex) 08:33:53 (BRS)
      2013/09/17 (Tue) 21:59:40 (BRS)
@@ -91,6 +92,8 @@
     #N,
     #fator,
     #rastro,
+    #intmeth,
+    #plotmeth,
     #estado,
     #salvar,
     #outro
@@ -102,7 +105,7 @@
     #demonst,
     #inicio,
     #agora,
-    #tempo
+    #tempot
     {
       width: 170px;
     }
@@ -168,14 +171,15 @@
 
     #inicio,
     #agora,
-    #tempo,
+    #tempot,
     #cabecalho label
     {
       display: block;
       text-align: center;
     }
 
-    #velo,
+    #vm,
+    #vi,
     #iter
     {
       vertical-align: bottom;
@@ -212,9 +216,14 @@
       width: 70px;
     }
 
-    input[type=text].velocidade
+    input[type=text].vm
     {
       width: 50px;
+    }
+
+    input[type=text].vi
+    {
+      width: 55px;
     }
 
     input[disabled=disabled]
@@ -344,27 +353,28 @@
 
     var visibilidade =
     {
-      'semente0'     : 1,
-      'sementei'     : 1,
-      'semanter'     : 1,
-      'crastro'      : 1,
-      'vertex-color' : 1,
+      'semente0'     : 0,
+      'sementei'     : 0,
+      'semanter'     : 0,
+      'crastro'      : 0,
+      'vertex-color' : 0,
       'vertex-monoc' : 0,
-      'pontos-color' : 0,
+      'pontos-color' : 1,
       'pontos-monoc' : 0,
-      'discos-color' : 1,
+      'discos-color' : 0,
       'discos-monoc' : 0,
-      'linhas-color' : 1,
+      'linhas-color' : 0,
       'linhas-monoc' : 0,
     };
 
 
 
     var W, H, pr, natW, natH, enatW, enatH, sc;
-    var inicio, reinicio, tempo, semente, semente0, realtime, canvases;
+    var inicio, reinicio, antes, tempot, semente, semente0, realtime, canvases;
     var valor      = [];
     var canvas     = [];
     var context    = [];
+    var pixel      = [];
     var vertices   = [];
     var natO       = [];
     var pi         = Math.PI;
@@ -372,17 +382,19 @@
     var rodando    = false;
     var offset     = 0;
 
-    var vertraio   =    5;
-    var discraio   =    2;
-    var linhaesp   =   .2;
-    var rastroesp  =    1;
-    var rastromax  =   18;
-    var rastrodef  =    4;
-    var rastro     =    0;
-    var anterior   = 0;
-    var delay      = 1000; // milissegundos
-    var LT         = [ -250 ,  250 ];
-    var RB         = [  250 , -250 ];
+    var vertraio    =    5;
+    var discraio    =    2;
+    var linhaesp    =   .2;
+    var rastroesp   =    1;
+    var rastromax   =   18;
+    var rastrodef   =    4;
+    var intmethdef  =    1;
+    var plotmethdef =    2;
+    var rastro      =    0;
+    var anterior    =    0;
+    var delay       = 1000; // milissegundos
+    var LT          = [ -250 ,  250 ];
+    var RB          = [  250 , -250 ];
 
 
 
@@ -446,11 +458,11 @@
       rodar(false);
 
       var T, alfa, cor, view, tag, mode;
-      var c, v, t, m;
-      var el, container, div, id, semi, crastro, iter, velo, porc;
+      var c, v, t, m, N;
+      var el, container, div, id, semi, crastro, iter, vm, vi, porc;
 
       valor['N'] = $('N').value;
-      var N = valor['N'];
+      N = valor['N'];
 
       $('estado').disabled = '';
 
@@ -487,11 +499,12 @@
               {
 
                 case ('canvas'):
-                  el.id               = tag + '-' + id;
-                  el.width            = enatW;
-                  el.height           = enatH;
-                  context[id]         = el.getContext('2d');
-                  container           = canvases;
+                  el.id       = tag + '-' + id;
+                  el.width    = enatW;
+                  el.height   = enatH;
+                  context[id] = el.getContext('2d');
+                  pixel[id]   = context[id].createImageData(1,1);
+                  container   = canvases;
                   break;
 
                 case ('input'):
@@ -520,14 +533,23 @@
         iter.setAttribute('disabled', 'disabled');
         div.appendChild(iter);
 
-        velo                       = document.createElement('input');
-        velo.id                    = cor + '-velo';
-        velo.className             = 'velocidade';
-        velo.value                 = 0;
-        velo.style.backgroundColor = cor;
-        velo.setAttribute('type'    , 'text'    );
-        velo.setAttribute('disabled', 'disabled');
-        div.appendChild(velo);
+        vm                       = document.createElement('input');
+        vm.id                    = cor + '-vm';
+        vm.className             = 'vm';
+        vm.value                 = 0;
+        vm.style.backgroundColor = cor;
+        vm.setAttribute('type'    , 'text'    );
+        vm.setAttribute('disabled', 'disabled');
+        div.appendChild(vm);
+
+        vi                       = document.createElement('input');
+        vi.id                    = cor + '-vi';
+        vi.className             = 'vi';
+        vi.value                 = 0;
+        vi.style.backgroundColor = cor;
+        vi.setAttribute('type'    , 'text'    );
+        vi.setAttribute('disabled', 'disabled');
+        div.appendChild(vi);
 
         porc                       = document.createElement('input');
         porc.id                    = cor + '-porc';
@@ -549,7 +571,8 @@
       }
 
       $('iter').value = 0;
-      $('velo').value = 0;
+      $('vm'  ).value = 0;
+      $('vi'  ).value = 0;
 
       semente0 = [ rnd(W) + LT[0] , rnd(H) + RB[1] ];
       semente  = [ semente0 ];
@@ -615,7 +638,9 @@
         valor['fator']   = 1 - sqr( (1-cos(alfa))/(1-cos(T*alfa)) ) / (2*cos((T-1)*alfa/2));
         $('fator').value = valor['fator'].toFixed(7);
 
-        $('rastro').getElementsByTagName('option')[rastrodef].selected = 'selected';
+        $('rastro'  ).getElementsByTagName('option')[rastrodef  ].selected = 'selected';
+        $('intmeth' ).getElementsByTagName('option')[intmethdef ].selected = 'selected';
+        $('plotmeth').getElementsByTagName('option')[plotmethdef].selected = 'selected';
 
       }
 
@@ -634,9 +659,11 @@
     function mainloop()
     {
 
-      var N      = valor['N'];
-      var fator  = valor['fator'];
-      var rastro = int($('rastro').value);
+      var N        = valor['N'];
+      var fator    = valor['fator'];
+      var rastro   = int($('rastro'  ).value);
+      var intmeth  = int($('intmeth' ).value);
+      var tempoi;
 
       if (rodando)
       {
@@ -706,17 +733,26 @@
 
         var agora = new Date();
         $('agora').value = agora.date();
-        tempo = offset + ( agora.getTime() - reinicio.getTime() ) / 1000;
+        tempot = offset + ( agora.getTime() - reinicio.getTime() ) / 1000;
+        if ( antes !== undefined )
+        tempoi =          ( agora.getTime() -    antes.getTime() ) / 1000;
 
-        ms = String(tempo.toFixed(3)).split('.')[1];
-        ts = int(tempo);
+        ms = String(tempot.toFixed(3)).split('.')[1];
+        ts = int(tempot);
         s  = (ts%60).zpad();
         ts = int(ts/60);
         m  = (ts%60).zpad();
         h  = (int(ts/60)).zpad();
-        $(    'tempo').value = h + ':' + m + ':' + s + '.' + ms;
-        $(     'velo').value = ( $(     'iter').value / tempo ).toFixed(2);
-        $(cor+'-velo').value = ( $(cor+'-iter').value / tempo ).toFixed(2);
+        $(  'tempot').value = h + ':' + m + ':' + s + '.' + ms;
+        $(     'vm').value = ( $(     'iter').value / tempot ).toFixed(2);
+        $(cor+'-vm').value = ( $(cor+'-iter').value / tempot ).toFixed(2);
+        if ( antes !== undefined )
+      {
+        $(     'vi').value = (                    1 / tempoi ).toFixed(2);
+        $(cor+'-vi').value = (                    1 / tempoi ).toFixed(2);
+      }
+
+        antes = agora;
 
         for ( var c=0; c<N; c++ )
         {
@@ -725,7 +761,15 @@
         }
 
         if ($('rapido').checked)
-           setZeroTimeout(mainloop);
+           switch (intmeth)
+           {
+              case 1:
+                setZeroTimeout(mainloop);
+                break;
+              case 2:
+                setTimeout(mainloop,0);
+                break;
+           }
         else
            setTimeout(mainloop,delay);
       }
@@ -760,7 +804,7 @@
 
     function parar()
     {
-      offset  = tempo;
+      offset  = tempot;
       rodando = false;
     }
 
@@ -768,14 +812,43 @@
 
     function ponto(canvasid, x, y, cor)
     {
+
+      // <http://jsperf.com/setting-canvas-pixel>
+
       cor = colornames[cor];
-      var idx = ( x2col(x) + y2lin(y)*enatW )*4;
-      dataset = context[canvasid].getImageData(0, 0, enatW, enatH);
-      dataset.data[idx+0] = cor[0];
-      dataset.data[idx+1] = cor[1];
-      dataset.data[idx+2] = cor[2];
-      dataset.data[idx+3] = 255;
-      context[canvasid].putImageData(dataset, 0, 0);
+
+      switch (int($('plotmeth').value))
+      {
+
+        case 1:
+          disco(canvasid, x, y, .5, 'rgba(' + cor[0] + ',' + cor[1] + ',' + cor[2] + ',255)');
+          break;
+
+        case 2:
+          var idx     = ( x2col(x) + y2lin(y)*enatW )*4;
+          var dataset = context[canvasid].getImageData(0, 0, enatW, enatH);
+          dataset.data[idx+0] = cor[0];
+          dataset.data[idx+1] = cor[1];
+          dataset.data[idx+2] = cor[2];
+          dataset.data[idx+3] = 255;
+          context[canvasid].putImageData(dataset, 0, 0);
+          break;
+
+        case 3:
+          context[canvasid].fillStyle = 'rgba(' + cor[0] + ',' + cor[1] + ',' + cor[2] + ',255)';
+          context[canvasid].fillRect(x2col(x), y2lin(y), 1, 1);
+          break;
+
+        case 4:
+          pixel[canvasid].data[0] = cor[0];
+          pixel[canvasid].data[1] = cor[1];
+          pixel[canvasid].data[2] = cor[2];
+          pixel[canvasid].data[3] = 255;
+          context[canvasid].putImageData(pixel[canvasid], x2col(x), y2lin(y));
+          break;
+
+      }
+
     }
 
 
@@ -946,11 +1019,30 @@
 
             <input type="button"   id="sobre"   value="O que é isso?"                  class="color"                               onclick="location='http://goo.gl/ZxOdFR'" />
             <input type="text"     id="tamanho" value=""                  title="largura × altura"             disabled="disabled"                                           />
+
             <select                id="N"                                 title="#vértices"                                        onchange="ambiente()"                      ><option>#vértices</option></select>
+
             <input type="text"     id="fator"   value="fator"             title="fator"                                            onchange="valor[this.id]=this.value"      />
             <input type="button"   id="demonst" value="Como o fator é calculado?"      class="color"                               onclick="location='http://goo.gl/g5Xbll'" />
-            <select                id="rastro"                            title="#rastro"                                          onchange="valor[this.id]=this.value"       ><option value="0">#rastro</option></select>
+
+            <select                id="rastro"                            title="#rastro"                                                                                     ><option value="0">#rastro</option></select>
+
       <span><input type="checkbox" id="rapido"                                                                                                                               /><label for="rapido" />Rápido</label></span>
+
+            <select                id="intmeth"                           title="Método de Interrupção"                                                                       >
+              <option value="0">Interrupção</option>
+              <option value="1">setTimeout</option>
+              <option value="2">setZeroTimeout</option>
+            </select>
+
+            <select                id="plotmeth"                          title="Método de plotagem de pixels"                                                                >
+              <option value="0">Plotagem</option>
+              <option value="1">arc R=0.5</option>
+              <option value="2">getImageData</option>
+              <option value="3">fillRect L=1</option>
+              <option value="4">1x1imageData</option>
+            </select>
+
             <input type="button"   id="estado"  value="Iniciar"                        class="color"           disabled="disabled" onclick="set('bin',this)"                 />
             <input type="button"   id="salvar"  value="Salvar"            title="Coloque nome e extensão (.png)"                   onclick="save('canvas-red-pontos-color')" />
             <input type="button"   id="outro"   value="Outro"                                                                      onclick="location=''"                     />
@@ -959,7 +1051,7 @@
 
             <input type="text"     id="inicio"  value="Hora de Início"    title="Hora de Início"               disabled="disabled"                                           />
             <input type="text"     id="agora"   value="Agora"             title="Agora"                        disabled="disabled"                                           />
-            <input type="text"     id="tempo"   value="Tempo em Execução" title="Tempo em Execução (h:m:s.ms)" disabled="disabled"                                           />
+            <input type="text"     id="tempot"  value="Tempo em Execução" title="Tempo em Execução (h:m:s.ms)" disabled="disabled"                                           />
 
       <span><input type="checkbox" id="semente0"                                                                                   onclick="set('vis',this)"                 /><label for="semente0">Semente 0 </label></span>
       <span><input type="checkbox" id="sementei"                                                                                   onclick="set('vis',this)"                 /><label for="sementei">Semente i </label></span>
@@ -977,8 +1069,9 @@
         <span title="Linhas Coloridas"       ><label for="linhas-color">L</label><input type="checkbox" id="linhas-color" onclick="set('all',this)" /></span>
         <span title="Linhas Monocromáticas"  ><label for="linhas-monoc">l</label><input type="checkbox" id="linhas-monoc" onclick="set('all',this)" /></span>
 
-            <input type="text"     id="iter"    value="#iterações"        title="#iterações"                   disabled="disabled"                    /><!--
-         --><input type="text"     id="velo"    value="velocid"           title="velociddade"                  disabled="disabled" class="velocidade" />
+            <input type="text" id="iter" value="#iterações" title="#iterações"                       disabled="disabled"            /><!--
+         --><input type="text" id="vm"   value="Vm"         title="Velociddade média (iter/s)"       disabled="disabled" class="vm" /><!--
+         --><input type="text" id="vi"   value="Vi"         title="Velociddade instantânea (iter/s)" disabled="disabled" class="vi" />
 
       </div>
 
