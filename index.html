@@ -772,10 +772,10 @@
            switch (intmeth)
            {
               case 1:
-                setZeroTimeout(mainloop);
+                setTimeout(mainloop,0);
                 break;
               case 2:
-                setTimeout(mainloop,0);
+                setZeroTimeout(mainloop);
                 break;
            }
         else
