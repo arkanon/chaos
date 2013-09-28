@@ -3,7 +3,7 @@
 <!--
 
      Arkanon <arkanon@lsd.org.br>
-     2013/09/27 (Sex) 23:35:51 (BRS)
+     2013/09/27 (Sex) 23:44:06 (BRS)
      2013/09/22 (Sun) 17:53:49 (BRS)
      2013/09/20 (Sex) 08:33:53 (BRS)
      2013/09/17 (Tue) 21:59:40 (BRS)
@@ -351,8 +351,9 @@
 
     };
 
-    var visibilidade =
+    var binario =
     {
+      'rapido'       : 1,
       'semente0'     : 0,
       'sementei'     : 0,
       'semanter'     : 0,
@@ -578,14 +579,20 @@
       semente0 = [ rnd(W) + LT[0] , rnd(H) + RB[1] ];
       semente  = [ semente0 ];
 
+      id = 'rapido';
+      if (!rodando)
+      {
+        $(id).checked = binario[id];
+      }
+
       id = 'semente0';
       context[id].clearRect(0,0,enatW,enatH);
       disco( id , semente0[0] , semente0[1] , vertraio , sem );
       sem0                    = $('canvas-'+id);
       if (!rodando)
       {
-        $(id).checked             = visibilidade[id];
-        sem0.style.visibility     = visibilidade[id] ? 'visible' : 'hidden';
+        $(id).checked             = binario[id];
+        sem0.style.visibility     = binario[id] ? 'visible' : 'hidden';
       }
 
       id                          = 'sementei';
@@ -597,8 +604,8 @@
       context[id]                 = semi.getContext('2d');
       if (!rodando)
       {
-        $(id).checked             = visibilidade[id];
-        semi.style.visibility     = visibilidade[id] ? 'visible' : 'hidden';
+        $(id).checked             = binario[id];
+        semi.style.visibility     = binario[id] ? 'visible' : 'hidden';
       }
       canvases.appendChild(semi);
 
@@ -611,8 +618,8 @@
       context[id]                 = crastro.getContext('2d');
       if (!rodando)
       {
-        $(id).checked             = visibilidade[id];
-        crastro.style.visibility  = visibilidade[id] ? 'visible' : 'hidden';
+        $(id).checked             = binario[id];
+        crastro.style.visibility  = binario[id] ? 'visible' : 'hidden';
       }
       canvases.appendChild(crastro);
 
@@ -625,8 +632,8 @@
       context[id]                 = semanter.getContext('2d');
       if (!rodando)
       {
-        $(id).checked             = visibilidade[id];
-        semanter.style.visibility = visibilidade[id] ? 'visible' : 'hidden';
+        $(id).checked             = binario[id];
+        semanter.style.visibility = binario[id] ? 'visible' : 'hidden';
       }
       canvases.appendChild(semanter);
 
@@ -649,7 +656,7 @@
         for (m in modes)
         {
           id = views[v] + '-' + modes[m];
-          if (!rodando) $(id).checked = visibilidade[id];
+          if (!rodando) $(id).checked = binario[id];
           set('all', $(id));
         }
 
